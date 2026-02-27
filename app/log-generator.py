@@ -14,7 +14,7 @@ from typing import Dict, Any
 # Configure structured logging to stdout
 class JSONFormatter(logging.Formatter):
     """Custom JSON formatter for structured logging"""
-    
+
     def format(self, record: logging.LogRecord) -> str:
         log_entry: Dict[str, Any] = {
             "timestamp": datetime.utcnow().isoformat() + "Z",
@@ -23,11 +23,10 @@ class JSONFormatter(logging.Formatter):
             "message": record.getMessage(),
             "logger": record.name,
         }
-        
-        # Add exception info if present
+
         if record.exc_info:
             log_entry["exception"] = self.formatException(record.exc_info)
-        
+
         return json.dumps(log_entry)
 
 
@@ -35,21 +34,14 @@ def setup_logger(name: str) -> logging.Logger:
     """Setup structured JSON logger"""
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    
-    # Remove default handlers
     logger.handlers = []
-    
-    # Add stdout handler with JSON formatter
     handler = logging.StreamHandler()
-    formatter = JSONFormatter()
-    handler.setFormatter(formatter)
+    handler.setFormatter(JSONFormatter())
     logger.addHandler(handler)
-    
     return logger
 
 
-def generate_sample_messages() -> list:
-    """Generate sample log messages for demo"""
+def normal_messages() -> list:
     return [
         "User login successful",
         "Database query executed",
@@ -69,44 +61,69 @@ def generate_sample_messages() -> list:
     ]
 
 
+def failure_messages() -> list:
+    return [
+        "Database connection timeout after 30s",
+        "Failed to acquire lock on resource",
+        "Upstream service returned 503",
+        "Memory threshold exceeded: 92% used",
+        "Request queue backed up: 847 pending",
+        "Circuit breaker OPEN for payments-service",
+        "Retry limit reached for job processor",
+        "Disk I/O error on /var/data volume",
+        "Authentication token validation failed",
+        "Null pointer exception in order handler",
+        "Connection pool exhausted: 0/50 available",
+        "Cache eviction rate critical: 98%",
+        "Health check FAILED for downstream API",
+        "Deadlock detected in transaction batch",
+        "Rate limit exceeded: 429 from external API",
+    ]
+
+
 def main():
-    """Main log generator loop"""
     logger = setup_logger("logpulse")
-    messages = generate_sample_messages()
-    log_levels = ["INFO", "WARNING", "ERROR", "DEBUG"]
-    
     service_name = os.getenv("SERVICE_NAME", "log-generator")
     interval = float(os.getenv("LOG_INTERVAL", "2"))
-    
-    print(f"🚀 Starting Log Generator", flush=True)
+    failure_mode = os.getenv("FAILURE_MODE", "false").lower() == "true"
+
+    mode_label = "FAILURE MODE" if failure_mode else "normal"
+    print(f"Starting Log Generator", flush=True)
     print(f"   Service: {service_name}", flush=True)
-    print(f"   Interval: {interval}s", flush=True)
+    print(f"   Mode: {mode_label}", flush=True)
+    print(f"   Interval: {0.5 if failure_mode else interval}s", flush=True)
     print(f"   Target: Loki via Promtail", flush=True)
     print("=" * 60, flush=True)
-    
+
     counter = 0
-    
+
     try:
         while True:
             counter += 1
-            
-            # Pick random log level and message
-            level = random.choice(log_levels)
-            message = random.choice(messages)
-            
-            # Add context
             request_id = f"req-{counter:06d}"
             user_id = f"user-{random.randint(1, 100):03d}"
+
+            if failure_mode:
+                # 80% ERROR, 15% WARNING, 5% INFO — fires alert within ~1 minute
+                level = random.choices(
+                    ["ERROR", "WARNING", "INFO"],
+                    weights=[80, 15, 5]
+                )[0]
+                message = random.choice(failure_messages())
+                sleep_interval = 0.5
+            else:
+                level = random.choice(["INFO", "WARNING", "ERROR", "DEBUG"])
+                message = random.choice(normal_messages())
+                sleep_interval = interval
+
             enhanced_message = f"[{request_id}] [{user_id}] {message}"
-            
-            # Log with appropriate level
             log_func = getattr(logger, level.lower())
             log_func(enhanced_message)
-            
-            time.sleep(interval)
-            
+
+            time.sleep(sleep_interval)
+
     except KeyboardInterrupt:
-        print("\n⏹️  Log Generator stopped", flush=True)
+        print("\nLog Generator stopped", flush=True)
     except Exception as e:
         logger.error(f"Unexpected error: {str(e)}")
         raise

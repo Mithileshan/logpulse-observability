@@ -63,6 +63,7 @@ services:
     environment:
       - LOG_LEVEL=INFO
       - SERVICE_NAME=demo-service
+      - FAILURE_MODE=false
     depends_on:
       - promtail
     networks:

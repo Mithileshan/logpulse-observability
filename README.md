@@ -220,6 +220,10 @@ Pre-built dashboard with 3 panels:
 - **Evaluation**: every 1m, pending 1m
 - **Group**: LogPulse → logpulse-alerts
 
+### Alert Firing (Live Demo)
+
+![Alert Firing](screenshot/firing.jpeg)
+
 ---
 
 ## Health Checks
@@ -376,12 +380,19 @@ docker compose down -v
   - ✅ Error Rate % panel (SRE-grade metric)
   - ✅ Alert rule: High Error Rate – Demo Service (fires above 10 errors/5m)
 
-- **Phase 3**: Production observability
-  - Distributed tracing (Jaeger integration)
-  - Metrics collection (Prometheus)
-  - Custom exporters
-  - Performance optimization
-  - Multi-tenant architecture
+- **Phase 3A** ✅ Complete: Synthetic failure simulation
+  - ✅ FAILURE_MODE env var triggers 80% ERROR rate at 0.5s interval
+  - ✅ Realistic failure messages (circuit breaker, connection pool, OOM, etc.)
+  - ✅ Alert fires within ~1 minute of enabling failure mode
+  - ✅ Screenshot: alert firing in production dashboard
+
+- **Phase 3B** (Planned): Prometheus metrics integration
+  - Prometheus + node_exporter
+  - Correlate error logs with CPU/memory metrics
+
+- **Phase 3C** (Planned): Distributed tracing
+  - Tempo/Jaeger integration
+  - Full observability triangle (logs + metrics + traces)
 
 ---
 

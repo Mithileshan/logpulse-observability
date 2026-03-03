@@ -13,16 +13,6 @@ Production-grade log aggregation and visualization system using Loki, Promtail, 
 
 LogPulse is a complete observability stack demonstrating centralized log aggregation, structured logging, log parsing, and real-time visualization.
 
-**What you get:**
-- 📊 Centralized log collection from all services
-- 🔍 Structured JSON logging for easy parsing
-- 📈 Real-time dashboards in Grafana
-- 🚀 Production-ready Docker deployment
-- 🎯 Log filtering, labeling, and retention
-- ⚡ High-performance log aggregation with Loki
-
----
-
 ## Architecture
 
 ```
@@ -47,24 +37,6 @@ User (Dashboard)
 | **Log Generator** | Sample app producing logs | N/A |
 
 ---
-
-## Project Structure
-
-```
-logpulse-observability/
-├── docker-compose.yml          # Multi-container orchestration
-├── loki-config.yaml            # Loki configuration (7-day retention)
-├── promtail-config.yaml        # Promtail log shipping config
-├── grafana/
-│   └── provisioning/
-│       └── datasources/
-│           └── loki.yaml       # Auto-provision Loki datasource
-├── app/
-│   ├── Dockerfile              # Log generator container
-│   └── log-generator.py        # Structured JSON log producer
-└── README.md                    # This file
-```
-
 ---
 
 ## Quick Start
@@ -364,37 +336,6 @@ docker compose down -v
 
 ---
 
-## Phases
-
-- **Phase 1** ✅ Complete: Production observability stack setup
-  - ✅ Loki 3.4.2 running with tsdb v13 schema
-  - ✅ Promtail shipping logs via Docker socket discovery
-  - ✅ Grafana 11.5.2 connected with auto-provisioned datasource
-  - ✅ Logs visible in real-time with structured JSON parsing
-  - ✅ Labels: `service`, `service_name`, `level`, `container`, `job`
-
-- **Phase 2** ✅ Complete: Dashboards & alerting
-  - ✅ LogPulse – Service Overview dashboard (3 panels)
-  - ✅ Log Volume (1m) panel
-  - ✅ Error Count (1m) panel
-  - ✅ Error Rate % panel (SRE-grade metric)
-  - ✅ Alert rule: High Error Rate – Demo Service (fires above 10 errors/5m)
-
-- **Phase 3A** ✅ Complete: Synthetic failure simulation
-  - ✅ FAILURE_MODE env var triggers 80% ERROR rate at 0.5s interval
-  - ✅ Realistic failure messages (circuit breaker, connection pool, OOM, etc.)
-  - ✅ Alert fires within ~1 minute of enabling failure mode
-  - ✅ Screenshot: alert firing in production dashboard
-
-- **Phase 3B** (Planned): Prometheus metrics integration
-  - Prometheus + node_exporter
-  - Correlate error logs with CPU/memory metrics
-
-- **Phase 3C** (Planned): Distributed tracing
-  - Tempo/Jaeger integration
-  - Full observability triangle (logs + metrics + traces)
-
----
 
 ## Author
 
@@ -402,6 +343,3 @@ docker compose down -v
 
 ---
 
-## License
-
-MIT License - See LICENSE file for details
